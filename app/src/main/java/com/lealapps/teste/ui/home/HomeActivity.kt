@@ -110,6 +110,7 @@ fun HomeActivity(
             CircularProgressIndicator()
         }
     } else {
+        viewModel.clearFieldsTraining()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -280,9 +281,9 @@ fun LoadTraining(workouts: List<TrainingModel>,
                         }
                         SmallFloatingActionButton(
                             onClick = {
-
+                                      navHostController.navigate("editTraining")
                             },
-                            containerColor = Color.Blue,
+                            containerColor = Color(0xFF5B90FE),
                             contentColor = Color.White,
                             shape = CircleShape
                         ) {
@@ -295,7 +296,7 @@ fun LoadTraining(workouts: List<TrainingModel>,
                                         it
                                     )
                                 }},
-                            containerColor = Color.Red,
+                            containerColor = Color(0xFFF1526D),
                             contentColor = Color.White,
                             shape = CircleShape
                         ) {

@@ -2,7 +2,6 @@ package com.lealapps.teste.api
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -15,8 +14,8 @@ import com.lealapps.teste.models.TrainingModel
 
 // ViewModel para gerenciar o estado e a comunicação com o Firebase
 class ExerciseViewModel : ViewModel() {
-    private val nameTraining = mutableStateOf("")
-    private val commTraining = mutableStateOf("")
+    val nameTraining = mutableStateOf("")
+    val commTraining = mutableStateOf("")
     val nameExercise = mutableStateOf("")
     val commExercise = mutableStateOf("")
     private var uriDownload by mutableStateOf<Uri?>(null)
@@ -28,12 +27,28 @@ class ExerciseViewModel : ViewModel() {
         trainingState = selectedTraining
     }
 
-    fun setNumExercise(name: String) {
-        nameExercise.value = name
+    fun setNameTraining(name: String) {
+        nameTraining.value = name
+    }
+    fun setCommTraining(comm: String) {
+        commTraining.value = comm
     }
 
-    fun setCommExercise(comm: String) {
+    private fun setNameExercise(name: String) {
+        nameExercise.value = name
+    }
+    private fun setCommExercise(comm: String) {
         commExercise.value = comm
+    }
+
+    fun clearFieldsTraining() {
+        setNameTraining("")
+        setCommTraining("")
+    }
+
+    fun clearFieldsExercise() {
+        setNameExercise("")
+        setCommExercise("")
     }
 
 
@@ -72,7 +87,7 @@ class ExerciseViewModel : ViewModel() {
     }
 
     // Funcao para enviar dados para o Firestore
-    private fun uploadTraining() {
+    fun uploadTraining() {
         val training = TrainingModel(
             name = nameTraining.value,
             comment = commTraining.value,
@@ -81,9 +96,17 @@ class ExerciseViewModel : ViewModel() {
 
     }
 
-    fun updateTraining(documentPath: String, field: String, newValue: Any) {
-        collectionReference.document(documentPath).update(field, newValue)
+    fun updateTraining(documentPath: String) {
+        val updates = hashMapOf<String, Any>(
+            "name" to nameTraining.value,
+            "comment" to commTraining.value
+        )
+
+        collectionReference.document(documentPath).update(updates)
+        setNameTraining("")
+        setCommTraining("")
     }
+
 
     fun deleteTraining(documentPath: String) {
         collectionReference.document(documentPath).delete()
@@ -93,10 +116,30 @@ class ExerciseViewModel : ViewModel() {
         val exercise = ExerciseModel(
             name = nameExercise.value,
             comment = commExercise.value,
-            image = uriDownload,
+            image = uriDownload.toString(),
         )
 
         collectionReference.document(documentPath).update("exercises", FieldValue.arrayUnion(exercise))
+    }
+
+    fun updateExercise(documentPath: String) {
+        val updates = hashMapOf<String, Any>(
+            "name" to nameExercise.value,
+            "comment" to commExercise.value,
+            "image" to uriDownload.toString()
+        )
+
+        collectionReference.document(documentPath).update(updates)
+        setNameTraining("")
+        setCommTraining("")
+    }
+
+    fun deleteExercise(documentPath: String) {
+        val updates = hashMapOf<String, Any>(
+            "exercises.$documentPath" to FieldValue.delete()
+        )
+
+        collectionReference.document(documentPath).update(updates)
     }
 
 

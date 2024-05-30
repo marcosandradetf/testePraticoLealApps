@@ -24,8 +24,10 @@ import com.lealapps.teste.ui.auth.Login
 import com.lealapps.teste.ui.theme.TesteTheme
 import com.lealapps.teste.ui.training.TrainingActivity
 import com.lealapps.teste.api.ExerciseViewModel
+import com.lealapps.teste.ui.exercise.CreateExercise
 import com.lealapps.teste.ui.home.HomeActivity
 import com.lealapps.teste.ui.exercise.View
+import com.lealapps.teste.ui.training.UpdateTraining
 
 class MainActivity : ComponentActivity() {
 
@@ -76,6 +78,23 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("view") {
                             View(
+                                training = viewModel.trainingState,
+                                navController = navController,
+                            )
+                        }
+                        composable("createExercise") {
+                            CreateExercise(
+                                viewModel = viewModel,
+                                pickMedia = pickMedia,
+                                selectedImageUri = selectedImageUri,
+                                navigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                        composable("editTraining") {
+                            UpdateTraining(
+                                viewModel = viewModel,
                                 training = viewModel.trainingState,
                                 navController = navController,
                             )

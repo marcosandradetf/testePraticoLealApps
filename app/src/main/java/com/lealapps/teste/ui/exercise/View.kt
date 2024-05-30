@@ -3,6 +3,7 @@ package com.lealapps.teste.ui.exercise
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddToPhotos
 import androidx.compose.material.icons.filled.HideImage
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -87,11 +89,8 @@ fun View(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-
-            ) {
-                if (training != null) {
+            if (training != null) {
+                LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                     training.exercises?.let { exercises ->
                         items(exercises.size) { index ->
 
@@ -108,7 +107,8 @@ fun View(
                                             ),
                                             shape = RoundedCornerShape(10.dp)
                                         ),
-                                    onClick = { /*TODO*/ }) {
+                                    onClick = { /*TODO*/ }
+                                ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxSize()
@@ -117,6 +117,7 @@ fun View(
 
                                         if(exercises[index].image != null) {
                                             Box(
+                                                contentAlignment = Alignment.Center,
                                                 modifier = Modifier
                                                     .size(
                                                         width = 200.dp,
@@ -150,7 +151,8 @@ fun View(
                                             }
                                         }
                                         Row(
-                                            modifier = Modifier.fillMaxWidth()
+                                            modifier = Modifier
+                                                .fillMaxWidth()
                                                 .padding(top = 10.dp),
                                             horizontalArrangement = Arrangement.Center
                                         ) {
@@ -165,8 +167,56 @@ fun View(
                         }
                     }
                 }
+                
+                if (training.exercises?.size == 0) {
+                    ElevatedCard(
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 6.dp
+                        ),
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .border(
+                                BorderStroke(
+                                    1.dp,
+                                    Color(0xFF54575C)
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ),
+                        onClick = { /*TODO*/ }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                                .clickable { navController.navigate("createExercise") }
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(
+                                        width = 200.dp,
+                                        height = 100.dp
+                                    )
+                                    .border(
+                                        BorderStroke(
+                                            1.dp, Color.White
+                                        ),
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                            ) {
+                                Icon(imageVector = Icons.Filled.AddToPhotos, contentDescription = "Add exercise")
+                            }
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.padding(top = 10.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(text = "Adicionar exercício")
+                            }
+                        }
+                    }
+                }
             }
-
         }
     }
 }

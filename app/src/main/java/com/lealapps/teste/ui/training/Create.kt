@@ -42,8 +42,8 @@ fun TrainingActivity(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF21252B).copy(alpha = 0.2f, red = 0.3f, blue = 0.4f)),
-            verticalArrangement = Arrangement.Center,
+                .background(Color(0xFF21252B).copy(alpha = 0.2f, red = 0.3f, blue = 0.4f))
+                .padding(top = 100.dp),
             horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -63,12 +63,13 @@ fun TrainingActivity(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(80.dp)
-                        .background(Color(0xFF5B90FE))
+                        .background(Color.Green)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.SportsMma,
                         contentDescription = "Insert Training",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier.size(50.dp),
+                        tint = Color(0xFF21252B)
                     )
                 }
 
@@ -84,7 +85,7 @@ fun TrainingActivity(
                     )
 
                     UserInput(
-                        label = "Observações",
+                        label = "Descrição",
                         type = "text",
                         viewModel = viewModel,
                         lines = 4
@@ -114,7 +115,7 @@ fun TrainingActivity(
                         )
                     }
 
-                    if ((viewModel.nameExercise.value.isNotEmpty() && viewModel.commExercise.value.isNotEmpty())
+                    if ((viewModel.nameTraining.value.isNotEmpty() && viewModel.commTraining.value.isNotEmpty())
                     ) {
                         Spacer(
                             modifier = Modifier
@@ -128,7 +129,7 @@ fun TrainingActivity(
                         )
 
                         Button(
-                            onClick = { navigateBack() },
+                            onClick = { viewModel.uploadTraining() },
                             colors = ButtonDefaults.buttonColors(Color.Transparent)
                         ) {
                             Text(text = "SALVAR",
