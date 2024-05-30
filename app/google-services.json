@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375956172894",
+    "project_id": "testepraticolealapps",
+    "storage_bucket": "testepraticolealapps.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375956172894:android:b5e9785696c0b18d8b04cf",
+        "android_client_info": {
+          "package_name": "com.lealapps.teste"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAWYY4Y5juH9o_cXjMQITKDgiwVdOvABg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
