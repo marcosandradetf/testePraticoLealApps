@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.lealapps.teste.models.TrainingModel
+import com.lealapps.teste.ui.components.FirstCreate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,52 +170,11 @@ fun View(
                 }
                 
                 if (training.exercises?.size == 0) {
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 6.dp
-                        ),
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .border(
-                                BorderStroke(
-                                    1.dp,
-                                    Color(0xFF54575C)
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            ),
-                        onClick = { /*TODO*/ }
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(10.dp)
-                                .clickable { navController.navigate("createExercise") }
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .size(
-                                        width = 200.dp,
-                                        height = 100.dp
-                                    )
-                                    .border(
-                                        BorderStroke(
-                                            1.dp, Color.White
-                                        ),
-                                        shape = RoundedCornerShape(10.dp)
-                                    )
-                            ) {
-                                Icon(imageVector = Icons.Filled.AddToPhotos, contentDescription = "Add exercise")
-                            }
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier.padding(top = 10.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                Text(text = "Adicionar exercício")
-                            }
-                        }
-                    }
+                    FirstCreate(
+                        navController = navController,
+                        route = "createExercise",
+                        label = "Adicionar primeiro exercício"
+                    )
                 }
             }
         }

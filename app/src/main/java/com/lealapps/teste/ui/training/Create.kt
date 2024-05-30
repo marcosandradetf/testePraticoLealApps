@@ -129,7 +129,9 @@ fun TrainingActivity(
                         )
 
                         Button(
-                            onClick = { viewModel.uploadTraining() },
+                            onClick = {
+                                viewModel.uploadTraining()
+                                navigateBack() },
                             colors = ButtonDefaults.buttonColors(Color.Transparent)
                         ) {
                             Text(text = "SALVAR",

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -61,6 +63,7 @@ import com.google.firebase.ktx.Firebase
 import com.lealapps.teste.models.TrainingModel
 import com.lealapps.teste.ui.components.CardOption
 import com.lealapps.teste.api.ExerciseViewModel
+import com.lealapps.teste.ui.components.FirstCreate
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 
@@ -115,11 +118,25 @@ fun HomeActivity(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Olá $user, seja bem-vindo",
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Lista de treinos",
+                                modifier = Modifier.padding(horizontal = 10.dp)
+                            )
+                            Icon(
+                                imageVector = Icons.Filled.AccountCircle,
+                                contentDescription = "User profile",
+                                modifier = Modifier
+                                    .padding(horizontal = 10.dp)
+                                    .size(30.dp)
+                            )
+                        }
+
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF15172C))
             )
@@ -152,21 +169,10 @@ fun HomeActivity(
                         viewModel = viewModel)
 
                 } else {
-                    Row {
-                        CardOption(
-                            imagem = "https://img.freepik.com/fotos-gratis/mulher-com-abdomen-visivel-fazendo-fitness_23-2150228944.jpg?t=st=1716672428~exp=1716676028~hmac=73a7dba18425d19a4c039db39f7be68a3cdc1f542a53dee4ef5be213934a79d9&w=1380",
-                            desc = "Acessar treinos",
-                            customColor = Color(0xFFFF593F),
-                            route = { navHostController.navigate("homeTraining") }
-                        )
-                        CardOption(
-                            imagem = "https://img.freepik.com/fotos-gratis/mulher-com-abdomen-visivel-fazendo-fitness_23-2150228944.jpg?t=st=1716672428~exp=1716676028~hmac=73a7dba18425d19a4c039db39f7be68a3cdc1f542a53dee4ef5be213934a79d9&w=1380",
-                            desc = "Acessar exercícios",
-                            customColor = Color.Black,
-                            route = { navHostController.navigate("homeExercise") }
-                        )
-
-                    }
+                    FirstCreate(
+                        navController =navHostController,
+                        route = "createTraining",
+                        label = "Criar primeiro treino")
                 }
             }
         }
