@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Output
 import androidx.compose.material.icons.filled.SportsGymnastics
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -111,10 +112,9 @@ fun HomeActivity(
                                 onClick = { signOut() },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.AccountCircle,
+                                    imageVector = Icons.Filled.Output,
                                     contentDescription = "User profile",
                                     modifier = Modifier
-                                        .padding(horizontal = 10.dp)
                                         .size(30.dp)
                                 )
                             }
