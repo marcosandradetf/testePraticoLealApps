@@ -75,7 +75,7 @@ fun ViewExercise(
             CenterAlignedTopAppBar(
                 title = { Text(text = "${viewModel.exerciseState?.name}") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate("homeExercises") }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -241,7 +241,7 @@ fun ViewExercise(
                                                         )
                                                     }
                                                 }
-                                                navController.navigate("homeExercises")},
+                                                navController.navigate("home")},
                                             dialogTitle = "Exluir exercício",
                                             dialogText = "Ao confirmar o exercício será excluído",
                                             icon = Icons.Filled.Info,

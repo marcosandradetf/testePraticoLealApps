@@ -62,7 +62,6 @@ fun EditExercise(
     ) {
 
         ElevatedCard(
-            onClick = { /*TODO*/ },
             colors = CardDefaults.cardColors(Color(0xFF282C34)),
             modifier = Modifier
                 .padding(10.dp)
@@ -161,7 +160,7 @@ fun EditExercise(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = { navController.navigate("home") },
                     colors = ButtonDefaults.buttonColors(Color.Transparent)
                 ) {
                     Text(text = "CANCELAR",
@@ -196,7 +195,7 @@ fun EditExercise(
                                         )
                                     }
                                 }
-                                navController.popBackStack()
+                                navController.navigate("Home")
                             } },
                         colors = ButtonDefaults.buttonColors(Color.Transparent)
                     ) {

@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.lealapps.teste.api.ExerciseViewModel
 import com.lealapps.teste.ui.components.UserInput
@@ -47,7 +48,7 @@ import com.lealapps.teste.ui.components.UserInput
 fun CreateExercise(
     viewModel: ExerciseViewModel,
     pickMedia: ActivityResultLauncher<PickVisualMediaRequest>,
-    navigateBack: () -> Unit,
+    navController: NavController,
 ) {
     Column(
         modifier = Modifier
@@ -58,7 +59,6 @@ fun CreateExercise(
     ) {
 
         ElevatedCard(
-            onClick = { /*TODO*/ },
             colors = CardDefaults.cardColors(Color(0xFF282C34)),
             modifier = Modifier
                 .padding(10.dp)
@@ -157,7 +157,7 @@ fun CreateExercise(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(
-                    onClick = { navigateBack() },
+                    onClick = { navController.navigate("home") },
                     colors = ButtonDefaults.buttonColors(Color.Transparent)
                 ) {
                     Text(text = "CANCELAR",
@@ -185,7 +185,7 @@ fun CreateExercise(
                         onClick = {
                             if (viewModel.selectedImageUri != null) {
                                 viewModel.uploadExercise(viewModel.trainingState?.id.toString())
-                                navigateBack()
+                                navController.navigate("home")
                             } },
                         colors = ButtonDefaults.buttonColors(Color.Transparent)
                     ) {

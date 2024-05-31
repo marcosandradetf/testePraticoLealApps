@@ -35,6 +35,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
@@ -61,9 +62,9 @@ import java.text.SimpleDateFormat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeActivity(
-    user: String,
     navHostController: NavHostController,
-    viewModel: ExerciseViewModel
+    viewModel: ExerciseViewModel,
+    signOut: () -> Unit
 ) {
     // Usando um estado para armazenar se a coleção existe ou não
     val collectionExists = remember { mutableStateOf(false) }
@@ -104,13 +105,17 @@ fun HomeActivity(
                                 text = "Lista de treinos",
                                 modifier = Modifier.padding(horizontal = 10.dp)
                             )
-                            Icon(
-                                imageVector = Icons.Filled.AccountCircle,
-                                contentDescription = "User profile",
-                                modifier = Modifier
-                                    .padding(horizontal = 10.dp)
-                                    .size(30.dp)
-                            )
+                            IconButton(
+                                onClick = { signOut() },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.AccountCircle,
+                                    contentDescription = "User profile",
+                                    modifier = Modifier
+                                        .padding(horizontal = 10.dp)
+                                        .size(30.dp)
+                                )
+                            }
                         }
 
                     }
