@@ -48,7 +48,6 @@ fun HomeExercises(
     viewModel: ExerciseViewModel
     ) {
 
-    viewModel.clearFieldsExercise()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -60,7 +59,7 @@ fun HomeExercises(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigate("homeExercises") }) {
+                    IconButton(onClick = { navController.navigate("home") }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Voltar"

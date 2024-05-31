@@ -50,6 +50,7 @@ fun CreateExercise(
     pickMedia: ActivityResultLauncher<PickVisualMediaRequest>,
     navController: NavController,
 ) {
+    viewModel.clearFieldsExercise()
     Column(
         modifier = Modifier
             .fillMaxSize()

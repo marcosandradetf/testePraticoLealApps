@@ -71,8 +71,10 @@ fun HomeActivity(
     val showProgress = remember { mutableStateOf(true) }
     var workouts by remember { mutableStateOf<List<TrainingModel>>(emptyList()) }
 
+    // chave usada para acionar o efeito LaunchedEffect
+    val effectKey = remember { mutableStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(effectKey) {
         viewModel.getTraining(
             collectionExists = { result ->
                                collectionExists.value = result },
@@ -89,9 +91,9 @@ fun HomeActivity(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
+            effectKey.value++
         }
     } else {
-        viewModel.clearFieldsTraining()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

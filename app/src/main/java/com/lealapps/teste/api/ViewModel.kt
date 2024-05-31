@@ -8,8 +8,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.net.toUri
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.firestore
@@ -23,6 +25,7 @@ import kotlinx.coroutines.tasks.await
 
 // ViewModel para gerenciar o estado e a comunicação com o Firebase
 class ExerciseViewModel : ViewModel() {
+
     val nameTraining = mutableStateOf("")
     val commTraining = mutableStateOf("")
     val nameExercise = mutableStateOf("")
@@ -30,7 +33,20 @@ class ExerciseViewModel : ViewModel() {
     var selectedImageUri by mutableStateOf<Uri?>(null)
     private var uriDownload by mutableStateOf<Uri?>(null)
     private val db = Firebase.firestore
-    private val collectionReference = db.collection("training")
+
+    // Crie um LiveData para armazenar o valor atual do userId
+    private val _userId = MutableLiveData<String>()
+
+    // Crie uma referência de coleção que será atualizada quando o valor do userId mudar
+    private lateinit var collectionReference: CollectionReference
+
+    // Método para atualizar o valor do userId
+    fun setUserId(userId: String) {
+        _userId.value = userId
+        // Atualize a referência de coleção quando o userId mudar
+        collectionReference = db.collection(userId)
+    }
+//    private val collectionReference = db.collection(userId.value)
 
     var trainingState by mutableStateOf<TrainingModel?>(null)
     var exerciseState by mutableStateOf<ExerciseModel?>(null)
@@ -70,7 +86,7 @@ class ExerciseViewModel : ViewModel() {
         disableLoading: (Boolean) -> Unit
     ){
         try {
-            val result = db.collection("training").get().await()
+            val result = collectionReference.get().await()
             // Verifica se a coleção possui documentos
             collectionExists(!result.isEmpty)
 

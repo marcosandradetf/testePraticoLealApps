@@ -39,6 +39,7 @@ fun CreateTraining(
     navigateBack: () -> Unit,
     viewModel: ExerciseViewModel
 ) {
+    viewModel.clearFieldsTraining()
         Column(
             modifier = Modifier
                 .fillMaxSize()

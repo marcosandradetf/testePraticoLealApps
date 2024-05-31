@@ -62,6 +62,9 @@ class MainActivity : ComponentActivity() {
 
 
         val currentUser = auth.currentUser
+        if (currentUser != null) {
+            viewModel.setUserId(currentUser.uid)
+        }
         setContent {
             val navController = rememberNavController()
 
