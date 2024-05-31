@@ -1,8 +1,6 @@
 package com.lealapps.teste.ui.home
 
 import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +26,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsGymnastics
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CardDefaults
@@ -41,7 +38,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,20 +48,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.toObject
-import com.google.firebase.ktx.Firebase
 import com.lealapps.teste.models.TrainingModel
-import com.lealapps.teste.ui.components.CardOption
 import com.lealapps.teste.api.ExerciseViewModel
+import com.lealapps.teste.ui.components.DeleteDialog
 import com.lealapps.teste.ui.components.FirstCreate
-import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,31 +69,17 @@ fun HomeActivity(
     val collectionExists = remember { mutableStateOf(false) }
     val showProgress = remember { mutableStateOf(true) }
     var workouts by remember { mutableStateOf<List<TrainingModel>>(emptyList()) }
-    val db = Firebase.firestore
+
 
     LaunchedEffect(Unit) {
-        try {
-            val result = db.collection("training").get().await()
-            // Verifica se a coleção possui documentos
-            collectionExists.value = !result.isEmpty
-
-            if (!result.isEmpty) {
-                val workoutsList = mutableListOf<TrainingModel>()
-                for (document in result.documents) {
-                    val trainingModel = document.toObject<TrainingModel>()
-                    trainingModel?.id = document.id // Defina o ID do documento no objeto
-                    if (trainingModel != null) {
-                        workoutsList.add(trainingModel)
-                    }
-                }
-                workouts = workoutsList
-            }
-        } catch (e: FirebaseFirestoreException) {
-            // Lidar com erros de acesso ao Firestore
-            Log.e(TAG, "Erro ao acessar a coleção training", e)
-        } finally {
-            showProgress.value = false
-        }
+        viewModel.getTraining(
+            collectionExists = { result ->
+                               collectionExists.value = result },
+            setData = { result ->
+                workouts = result  },
+            disableLoading = { result ->
+                showProgress.value = result }
+        )
     }
 
     if (showProgress.value) {
@@ -166,8 +143,8 @@ fun HomeActivity(
                     LoadTraining(
                         workouts = workouts,
                         navHostController = navHostController,
-                        viewModel = viewModel)
-
+                        viewModel = viewModel,
+                    )
                 } else {
                     FirstCreate(
                         navController =navHostController,
@@ -177,16 +154,15 @@ fun HomeActivity(
             }
         }
     }
-
-
 }
 
 @SuppressLint("SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoadTraining(workouts: List<TrainingModel>,
-                 navHostController: NavHostController,
-                 viewModel: ExerciseViewModel
+fun LoadTraining(
+    workouts:  List<TrainingModel>,
+    navHostController: NavHostController,
+    viewModel: ExerciseViewModel
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
     val sdf = SimpleDateFormat("dd/MM/yyyy")
@@ -208,12 +184,12 @@ fun LoadTraining(workouts: List<TrainingModel>,
                     ),
                 onClick = {
                     viewModel.updateTrainingState(training)
-                    navHostController.navigate("view") },
+                    navHostController.navigate("homeExercises") },
                 colors = CardDefaults.cardColors(Color(0xFF21252B))
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp) // Adiciona padding para espaçamento entre os itens
+                        .padding(16.dp)
                 ) {
                     Row{
                         Text(text = "${training.name}", color = Color(0xFFD8D8D8))
@@ -247,7 +223,13 @@ fun LoadTraining(workouts: List<TrainingModel>,
                             .padding(top = 20.dp, bottom = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        training.comment?.let { Text(text = it, color = Color(0xFFD8D8D8)) }
+                        training.comment?.let {
+                            Text(
+                                modifier = Modifier.width(220.dp),
+                                text = it,
+                                color = Color(0xFFD8D8D8)
+                            )
+                        }
                         BadgedBox(
                             badge = {
                                 Badge(
@@ -273,21 +255,24 @@ fun LoadTraining(workouts: List<TrainingModel>,
                         when {
                             // ...
                             openAlertDialog.value -> {
-                                AlertDialogExample(
+                                DeleteDialog(
                                     onDismissRequest = { openAlertDialog.value = false },
                                     onConfirmation = {
                                         openAlertDialog.value = false
-                                        println("Confirmation registered") // Add logic here to handle confirmation.
-                                    },
-                                    dialogTitle = "Alert dialog example",
-                                    dialogText = "This is an example of an alert dialog with buttons.",
-                                    icon = Icons.Filled.Info
+                                        training.id?.let {
+                                            viewModel.deleteTraining(it)
+                                        }
+                                        navHostController.navigate("home")},
+                                    dialogTitle = "Exluir treino",
+                                    dialogText = "Ao confirmar o treino será excluído",
+                                    icon = Icons.Filled.Info,
                                 )
                             }
                         }
                         SmallFloatingActionButton(
                             onClick = {
-                                      navHostController.navigate("editTraining")
+                                viewModel.updateTrainingState(training)
+                                navHostController.navigate("editTraining")
                             },
                             containerColor = Color(0xFF5B90FE),
                             contentColor = Color.White,
@@ -296,12 +281,9 @@ fun LoadTraining(workouts: List<TrainingModel>,
                             Icon(Icons.Filled.Edit, "Edit Training")
                         }
                         SmallFloatingActionButton(
-                            onClick = { openAlertDialog.value = true
-                                training.id?.let {
-                                    viewModel.deleteTraining(
-                                        it
-                                    )
-                                }},
+                            onClick = {
+                                viewModel.updateTrainingState(training)
+                                openAlertDialog.value = true },
                             containerColor = Color(0xFFF1526D),
                             contentColor = Color.White,
                             shape = CircleShape
@@ -313,48 +295,4 @@ fun LoadTraining(workouts: List<TrainingModel>,
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AlertDialogExample(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
-    icon: ImageVector,
-) {
-    AlertDialog(
-        icon = {
-            Icon(icon, contentDescription = "Example Icon")
-        },
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-
-                    onConfirmation()
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismissRequest()
-                }
-            ) {
-                Text("Dismiss")
-            }
-        }
-    )
 }

@@ -4,7 +4,7 @@ import android.net.Uri
 
 
 data class ExerciseModel(
-    var id: String? = null,
+    var id: Int? = null,
     var name: String? = null,
     var comment: String? = null,
     var image: String? = null,

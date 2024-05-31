@@ -35,7 +35,7 @@ import com.lealapps.teste.ui.components.UserInput
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrainingActivity(
+fun CreateTraining(
     navigateBack: () -> Unit,
     viewModel: ExerciseViewModel
 ) {
@@ -79,20 +79,19 @@ fun TrainingActivity(
                 ) {
                     UserInput(
                         label = "Nome do treino",
-                        type = "text",
+                        training = true,
                         viewModel = viewModel,
                         lines = 1
                     )
 
                     UserInput(
                         label = "Descrição",
-                        type = "text",
+                        training = true,
                         viewModel = viewModel,
                         lines = 4
                     )
 
                 }
-
 
                 Spacer(modifier = Modifier
                     .padding(top = 10.dp)
