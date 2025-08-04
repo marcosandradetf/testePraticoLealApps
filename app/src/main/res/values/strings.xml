@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">teste</string>
+    <string name="app_name">GymHero</string>
     <string name="title_activity_training">TrainingActivity</string>
     <string name="title_activity_home">HomeActivity</string>
     <!-- Strings related to login -->
