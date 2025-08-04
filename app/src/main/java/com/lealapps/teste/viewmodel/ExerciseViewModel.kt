@@ -14,11 +14,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-// ViewModel para gerenciar o estado e a comunicação com o Firebase
 class ExerciseViewModel : ViewModel() {
     private val repository = ExerciseRepository()
 
     var isLoading by mutableStateOf(false)
+    var updated by mutableStateOf(false)
     var message by mutableStateOf<String?>(null)
     var nameExercise by mutableStateOf("")
 
@@ -76,12 +76,19 @@ class ExerciseViewModel : ViewModel() {
                     trainingId = trainingId
                 )
 
-                if (selectedImageUri != null)
-                    repository.updateExercise(exerciseId, exercise, selectedImageUri!!)
+                if (selectedImageUri != null) {
+                    val newUri = repository.updateExercise(exerciseId, exercise, selectedImageUri!!)
+                    exerciseState = exerciseState?.copy(
+                        name = nameExercise,
+                        comment = exerciseObservations,
+                        image = newUri
+                    )
+                }
             } catch (e: Exception) {
                 Log.e("uploadExercise", "Erro ao fazer upload do exercício", e)
                 message = e.message
             } finally {
+                updated = true
                 isLoading = false
             }
         }
@@ -97,6 +104,7 @@ class ExerciseViewModel : ViewModel() {
                 message = e.message
             } finally {
                 isLoading = false
+                updated = true
             }
         }
     }

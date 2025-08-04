@@ -12,7 +12,6 @@ import com.lealapps.teste.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// ViewModel para gerenciar o estado e a comunicação com o Firebase
 @SuppressLint("MutableCollectionMutableState")
 class TrainingViewModel : ViewModel() {
     private val repository = TrainingRepository()
@@ -21,11 +20,8 @@ class TrainingViewModel : ViewModel() {
     var trainingObservations by mutableStateOf("")
     var message by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
-
     var trainingId by mutableStateOf<String?>(null)
-
     var trainings by mutableStateOf(mutableListOf<TrainingModel>())
-
 
     fun clearFieldsTraining() {
         nameTraining = ""
@@ -98,11 +94,12 @@ class TrainingViewModel : ViewModel() {
                 nameTraining = ""
                 trainingObservations = ""
                 trainingId = null
-                trainings.filterNot { it.id == trainingId }
+                trainings = trainings.filterNot { it.id == trainingId }.toMutableList()
             } catch (e: Exception) {
                 message = e.message
             } finally {
                 isLoading = false
+                message = "Treino excluido com sucesso"
             }
         }
 

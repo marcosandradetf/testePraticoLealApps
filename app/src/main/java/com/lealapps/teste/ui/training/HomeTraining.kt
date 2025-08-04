@@ -78,6 +78,11 @@ fun HomeTraining(
             navHostController.navigate(Routes.PROFILE)
         }
     ) { modifier, showSnackBar ->
+        if(viewModel.message != null) {
+            showSnackBar(viewModel.message ?: "", null)
+            viewModel.message = null
+        }
+
         if (viewModel.isLoading) {
             Column(
                 modifier = Modifier.fillMaxSize(),

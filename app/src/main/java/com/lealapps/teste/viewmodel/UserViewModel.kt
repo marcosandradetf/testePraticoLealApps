@@ -10,8 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class UserViewModel : ViewModel() {
-
-    val userRepository = UserRepository()
+    private val userRepository = UserRepository()
 
     var email by mutableStateOf("")
     var password by mutableStateOf("")

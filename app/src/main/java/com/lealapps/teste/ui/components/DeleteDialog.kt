@@ -31,12 +31,6 @@ fun DeleteDialog(
         ),
         containerColor = Color(0xFF21252B),
         iconContentColor = Color.Red,
-        icon = {
-            Icon(
-                icon,
-                contentDescription = dialogText,
-            )
-        },
         title = {
             Text(text = dialogTitle)
         },

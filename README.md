@@ -1,23 +1,53 @@
-# Meu Projeto
+# Teste Prático Leal Apps
+## Marcos Andrade - **`GYM HERO`**
 
-Durante o desenvolvimento do meu projeto o meu foco foi tentar seguir todos os requisitos desejáveis para este teste prático
+Este projeto foi desenvolvido com foco em boas práticas de engenharia de software, priorizando uma arquitetura sólida, código limpo, usabilidade e integração eficiente com o Firebase.
 
-## Requisitos do Projeto
+---
 
-1. **Boas Práticas de Programação:**
-   - Adotei boas práticas de programação, como nomeação consistente de variáveis e criação de componentes reutilizáveis.
+## ✅ Requisitos e Implementações
 
-2. **Experiência do Usuário:**
-   - Priorizei a experiência do usuário, garantindo uma interface limpa, intuitiva e responsiva em todo o aplicativo.
+### 1. **Boas Práticas de Programação**
+- Utilização de **nomes claros e consistentes** para variáveis e funções.
+- **Componentização** de telas e lógicas para promover reuso e fácil manutenção.
+- Separação clara de responsabilidades com foco em **código limpo e escalável**.
 
-3. **Integração com Firebase:**
-   - Integrei o app ao Firebase para autenticação de usuários, armazenamento de dados e outras armazenamento.
+### 2. **Arquitetura MVVM + Repository**
+- Estrutura baseada no padrão **MVVM (Model-View-ViewModel)**.
+- Uso do **Repository Pattern** como camada intermediária entre ViewModel e Firebase.
+- Proporciona **testabilidade, desacoplamento e organização**.
 
-7. **Autenticação de Usuário:**
-   - Implementei um sistema de autenticação de usuário email/senha através Firebase Authentication.
+### 3. **Coroutines + Firebase (viewModelScope + Dispatchers.IO)**
+- Comunicação assíncrona com o Firebase utilizando **coroutines e funções `suspend`**.
+- Chamadas executadas via **`viewModelScope.launch(Dispatchers.IO)`**, mantendo a UI fluida.
+- Garante desempenho adequado em operações intensivas como leitura, escrita e upload de dados/imagens.
 
-8. **Banco de Dados Firestore:**
-   - Para armazenamento no Firestore utilizei o UserID do usuário após a autenticação para criar documentos para cada usuário.
+### 4. **Experiência do Usuário**
+- Interface **moderna, responsiva e intuitiva**, construída com **Jetpack Compose**.
+- Feedback visual claro em carregamentos e interações.
+- Navegação fluida entre telas com **Navigation Compose**.
 
-9. **Armazenamento de Imagens:**
-   - Utilizei o Firebase Storage para armazenar e recuperar imagens de forma eficiente e confiável.
+### 5. **Autenticação de Usuário (Firebase Auth)**
+- Sistema de login e cadastro com **e-mail e senha** via **Firebase Authentication**.
+- Sessão persistente para o usuário autenticado.
+- Proteção de rotas e dados sensíveis com verificação de autenticação.
+
+### 6. **Banco de Dados (Firestore)**
+- Estrutura de dados organizada por **UserID**, garantindo privacidade e isolamento por usuário.
+- Utilização do **Firebase Firestore** para armazenar treinos e exercícios.
+
+### 7. **Armazenamento de Imagens (Firebase Storage)**
+- Upload e recuperação de imagens utilizando **Firebase Storage**.
+- As URLs das imagens são armazenadas no Firestore, facilitando a exibição nas interfaces.
+
+---
+
+## 📂 Tecnologias e Ferramentas Utilizadas
+
+- **Kotlin** + **Jetpack Compose**
+- **Android Studio**
+- **MVVM Architecture** + **Repository Pattern**
+- **Firebase Auth**, **Firestore** e **Storage**
+- **Kotlin Coroutines** (`suspend`, `viewModelScope.launch(Dispatchers.IO)`)
+- **Navigation Compose**
+- **MutableState** + **StateFlow** para gerenciamento de estado reativo

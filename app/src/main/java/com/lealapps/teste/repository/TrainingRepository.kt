@@ -9,16 +9,17 @@ import com.lealapps.teste.model.TrainingModel
 import kotlinx.coroutines.tasks.await
 
 class TrainingRepository {
-    private val collectionTraining =
+    private val collectionTraining = if(auth.currentUser != null)
         db.collection("users").document(auth.currentUser?.uid ?: "").collection("training")
+    else null
 
     suspend fun getAll(): MutableList<TrainingModel> {
         return try {
-            val result = collectionTraining.get().await()
-            if (result.documents.isNotEmpty()) {
+            val result = collectionTraining?.get()?.await()
+            if (result?.documents?.size!! > 0) {
                 result.documents.mapNotNull { document ->
                     document.toObject(TrainingModel::class.java)
-                }.toMutableList() // Transformando para MutableList
+                }.toMutableList()
             } else {
                 mutableListOf() // Retorna uma lista mutável vazia
             }
@@ -32,7 +33,7 @@ class TrainingRepository {
 
     suspend fun uploadTraining(training: TrainingModel) {
         try {
-            collectionTraining.document(training.id).set(training).await()
+            collectionTraining?.document(training.id)?.set(training)?.await()
         } catch (e: Exception) {
             throw e
         }
@@ -45,7 +46,7 @@ class TrainingRepository {
         )
 
         try {
-            collectionTraining.document(documentPath).update(updates).await()
+            collectionTraining?.document(documentPath)?.update(updates)?.await()
         } catch (e: Exception) {
             throw e
         }
@@ -54,7 +55,7 @@ class TrainingRepository {
     suspend fun deleteTraining(documentPath: String?) {
 
         try {
-            collectionTraining.document(documentPath.toString()).delete().await()
+            collectionTraining?.document(documentPath.toString())?.delete()?.await()
         } catch (e: Exception) {
             throw e
         }

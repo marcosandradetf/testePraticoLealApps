@@ -1,6 +1,5 @@
 package com.lealapps.teste.repository
 
-import android.widget.Toast
 import com.lealapps.teste.firebase.FirebaseService.auth
 import kotlinx.coroutines.tasks.await
 

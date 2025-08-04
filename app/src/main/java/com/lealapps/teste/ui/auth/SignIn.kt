@@ -1,5 +1,6 @@
 package com.lealapps.teste.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +48,6 @@ import com.lealapps.teste.navigation.Routes
 import com.lealapps.teste.viewmodel.UserViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Login(
     viewModel: UserViewModel,
@@ -59,6 +59,13 @@ fun Login(
         if(viewModel.isAuthenticated) {
             navController.navigate(Routes.HOME)
         }
+    }
+
+    if(viewModel.message.isNotBlank()) {
+        Toast.makeText(
+
+        )
+        viewModel.message = ""
     }
 
     // Layout principal

@@ -1,11 +1,8 @@
 package com.lealapps.teste.ui.exercise
 
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,15 +15,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.SportsGymnastics
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,9 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -60,198 +59,154 @@ fun CreateExercise(
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null) {
-            viewModel.selectedImageUri = uri
-        } else {
-            Log.d("PhotoPicker", "No media selected")
+        uri?.let {
+            viewModel.selectedImageUri = it
         }
     }
 
     var isFirstComposition by remember { mutableStateOf(true) }
 
     LaunchedEffect(viewModel.exercises.size) {
-        // Só navega se não for a primeira composição
         if (!isFirstComposition && viewModel.trainingState != null) {
             navController.navigate("${Routes.HOME_EXERCISE}/${viewModel.trainingState!!.id}")
         }
-
-        // Marca a primeira composição como concluída
         isFirstComposition = false
     }
-
 
     AppLayout(
         title = "Novo exercício",
         selectedIcon = BottomBar.TRAINING.value,
-        navigateBack = {
-            navController.popBackStack()
-        },
-        navigateToHome = {
-            navController.navigate(Routes.HOME)
-        },
-        navigateToProfile = {
-            navController.navigate(Routes.PROFILE)
-        }
-    ) { modifier, showSnackBar ->
+        navigateBack = { navController.popBackStack() },
+        navigateToHome = { navController.navigate(Routes.HOME) },
+        navigateToProfile = { navController.navigate(Routes.PROFILE) }
+    ) { modifier, _ ->
 
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .padding(top = 15.dp),
+                .padding(horizontal = 16.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             ElevatedCard(
-                colors = CardDefaults.cardColors(Color(0xFF282C34)),
-                modifier = Modifier
-                    .padding(10.dp)
-                    .border(
-                        BorderStroke(1.dp, Color(0xFF606368)),
-                        shape = RoundedCornerShape(10.dp)
-                    )
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(80.dp)
-                        .background(Color.Red)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.SportsGymnastics,
-                        contentDescription = "Insert Training",
-                        modifier = Modifier.size(50.dp),
-                        tint = Color.Green
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Icon(
+                        imageVector = Icons.Default.SportsGymnastics,
+                        contentDescription = "Exercício",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(48.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     OutlinedTextField(
-                        minLines = 1,
                         value = viewModel.nameExercise,
                         onValueChange = { viewModel.nameExercise = it },
-                        label = { Text(text = "Nome do exercício") },
+                        label = { Text("Nome do exercício") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
-                        minLines = 4,
                         value = viewModel.exerciseObservations,
                         onValueChange = { viewModel.exerciseObservations = it },
-                        label = { Text(text = "Observações") },
+                        label = { Text("Observações") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 4
                     )
 
-                    Spacer(modifier = Modifier.padding(bottom = 10.dp))
-                    if (viewModel.selectedImageUri?.path.isNullOrEmpty()
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(
+                                width = 1.dp,
+                                color = Color(0xFF70777C),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable {
+                                pickMedia.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                }
-                                .size(width = 280.dp, height = 150.dp)
-                                .border(
-                                    width = 1.dp,
-                                    color = Color(0xFF70777C),
-                                    shape = RoundedCornerShape(5.dp)
-                                ),
-                        ) {
+                        if (viewModel.selectedImageUri != null) {
+                            AsyncImage(
+                                model = viewModel.selectedImageUri,
+                                contentDescription = "Imagem selecionada",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.AddAPhoto,
-                                    contentDescription = "Selecionar Imagem",
-                                    modifier = Modifier.size(width = 50.dp, height = 50.dp)
+                                    imageVector = Icons.Default.AddAPhoto,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = Color.Gray
                                 )
-                                Text(text = "Selecionar Imagem")
+                                Text(
+                                    text = "Selecionar imagem",
+                                    color = Color.Gray
+                                )
                             }
-
                         }
-                    } else {
-                        AsyncImage(
-                            model = viewModel.selectedImageUri,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(width = 280.dp, height = 150.dp)
-                                .border(
-                                    width = 1.dp,
-                                    color = Color(0xFF70777C),
-                                    shape = RoundedCornerShape(5.dp)
-                                )
-                                .clickable {
-                                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                },
-                        )
-                    }
-                }
-
-                Spacer(
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .border(BorderStroke(1.dp, color = Color(0xFF54575C)))
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Button(
-                        onClick = { navController.navigate("home") },
-                        colors = ButtonDefaults.buttonColors(Color.Transparent)
-                    ) {
-                        Text(
-                            text = "CANCELAR",
-                            color = Color(0xFF5B90FE),
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.SansSerif
-                        )
                     }
 
-                    if (
-                        (viewModel.nameExercise.isNotEmpty() && viewModel.exerciseObservations.isNotEmpty()) && !viewModel.selectedImageUri?.path.isNullOrEmpty()
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Spacer(
-                            modifier = Modifier
-                                .size(1.dp, 50.dp)
-                                .border(
-                                    BorderStroke(
-                                        1.dp,
-                                        Color(0xFF54575C)
-                                    )
-                                )
-                        )
+                        OutlinedButton(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Cancelar")
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        val canCreate = viewModel.nameExercise.isNotBlank() &&
+                                viewModel.exerciseObservations.isNotBlank() &&
+                                viewModel.selectedImageUri != null
 
                         Button(
                             onClick = {
-                                if (viewModel.selectedImageUri != null && viewModel.trainingState != null) {
-                                    viewModel.uploadExercise(viewModel.trainingState!!.id)
+                                viewModel.trainingState?.let {
+                                    viewModel.uploadExercise(it.id)
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(Color.Transparent)
+                            enabled = canCreate,
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Text(
-                                text = "CRIAR EXERCÍCIO",
-                                color = Color(0xFF5B90FE),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                            Text("Criar exercício")
                         }
                     }
                 }
-
             }
         }
     }
 }
+
 
 @Preview
 @Composable
