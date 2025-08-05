@@ -2,11 +2,9 @@ package com.lealapps.teste.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.lealapps.teste.firebase.FirebaseService.auth
 import com.lealapps.teste.ui.auth.Login
 import com.lealapps.teste.ui.auth.SignUp
 import com.lealapps.teste.ui.exercise.CreateExercise
@@ -24,11 +22,12 @@ import com.lealapps.teste.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation() {
-    val currentUser = auth.currentUser
     val navController = rememberNavController()
     val userViewModel: UserViewModel = viewModel()
     val exerciseViewModel: ExerciseViewModel = viewModel()
     val trainingViewModel: TrainingViewModel = viewModel()
+
+    val currentUser = userViewModel.user
 
     NavHost(
         navController,
@@ -51,7 +50,8 @@ fun AppNavigation() {
         composable(Routes.HOME) {
             if (currentUser != null) {
                 HomeScreen(
-                    navController = navController
+                    navController = navController,
+                    currentUser = currentUser,
                 )
             } else {
                 navController.navigate(Routes.LOGIN)

@@ -29,13 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.lealapps.teste.firebase.FirebaseService.auth
+import com.google.firebase.auth.FirebaseUser
 import com.lealapps.teste.navigation.Routes
 import com.lealapps.teste.ui.components.AppLayout
 import com.lealapps.teste.ui.components.BottomBar
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, currentUser: FirebaseUser?) {
 
     val paddingValues = PaddingValues(16.dp)
 
@@ -55,7 +55,7 @@ fun HomeScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
-                text = "Olá, ${auth.currentUser?.displayName ?: "Usuário"}!",
+                text = "Olá, ${currentUser?.displayName ?: "Usuário"}!",
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onBackground

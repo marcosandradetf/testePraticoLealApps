@@ -45,4 +45,8 @@ class UserRepository {
         }
     }
 
+    fun signOut() {
+        auth.signOut()
+    }
+
 }

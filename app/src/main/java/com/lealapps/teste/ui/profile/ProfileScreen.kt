@@ -1,5 +1,6 @@
 package com.lealapps.teste.ui.profile
 
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,9 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.lealapps.teste.firebase.FirebaseService.auth
 import com.lealapps.teste.navigation.Routes
 import com.lealapps.teste.ui.components.AppLayout
 import com.lealapps.teste.ui.components.BottomBar
@@ -66,9 +65,16 @@ fun ProfileScreen(
 
     val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val currentVersionName = packageInfo.versionName
-    val currentVersionCode = packageInfo.longVersionCode
-    var modalPassword by remember { mutableStateOf(false) }
+    val currentVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        packageInfo.longVersionCode
+    } else {
+        @Suppress("DEPRECATION")
+        packageInfo.versionCode.toLong()
+    }
 
+
+    var modalPassword by remember { mutableStateOf(false) }
+    val currentUser = userViewModel.user
 
     AppLayout(
         title = "Perfil",
@@ -121,9 +127,9 @@ fun ProfileScreen(
 
                     Spacer(Modifier.height(12.dp))
 
-                    ProfileInfoRow(label = "Nome", value = auth.currentUser?.displayName ?: "Não disponível")
-                    ProfileInfoRow(label = "Email", value = auth.currentUser?.email ?: "Não disponível")
-                    ProfileInfoRow(label = "UID", value = auth.currentUser?.uid ?: "Não disponível")
+                    ProfileInfoRow(label = "Nome", value = currentUser?.displayName ?: "Não disponível")
+                    ProfileInfoRow(label = "Email", value = currentUser?.email ?: "Não disponível")
+                    ProfileInfoRow(label = "UID", value = currentUser?.uid ?: "Não disponível")
                 }
             }
 
@@ -188,10 +194,7 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .clickable {
-                        auth.signOut()
-                        navController.navigate(Routes.LOGIN) {
-                            popUpTo(0)
-                        }
+                        userViewModel.signOut()
                     }
             )
         }

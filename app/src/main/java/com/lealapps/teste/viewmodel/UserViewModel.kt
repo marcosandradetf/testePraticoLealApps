@@ -5,7 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
 import com.lealapps.teste.firebase.FirebaseService.auth
 import com.lealapps.teste.firebase.FirebaseService.translateFirebaseError
@@ -17,6 +18,17 @@ import kotlinx.coroutines.withContext
 
 class UserViewModel : ViewModel() {
     private val userRepository = UserRepository()
+
+    var user by mutableStateOf<FirebaseUser?>(null)
+
+    private val authListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        user = firebaseAuth.currentUser
+        isAuthenticated = user != null
+    }
+
+    init {
+        auth.addAuthStateListener(authListener)
+    }
 
     var name by mutableStateOf("")
     var email by mutableStateOf("")
@@ -35,7 +47,6 @@ class UserViewModel : ViewModel() {
                 withContext(Dispatchers.IO) {
                     userRepository.signIn(email, password)
                 }
-                isAuthenticated = true
             } catch (e: Exception) {
                 message = translateFirebaseError(e)
             } finally {
@@ -73,7 +84,6 @@ class UserViewModel : ViewModel() {
                 auth.currentUser?.updateProfile(profileUpdates)?.await()
 
                 withContext(Dispatchers.Main) {
-                    isAuthenticated = true
                     message = "Conta criada com sucesso"
                 }
 
@@ -104,6 +114,23 @@ class UserViewModel : ViewModel() {
             }
         }
     }
+
+    fun signOut() {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                withContext(Dispatchers.IO) {
+                    userRepository.signOut()
+                }
+            } catch (e: Exception) {
+                message = translateFirebaseError(e)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+
 
 
 }
