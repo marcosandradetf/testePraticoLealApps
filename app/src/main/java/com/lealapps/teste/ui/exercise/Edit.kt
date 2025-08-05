@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.SportsGymnastics
@@ -28,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +38,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
@@ -51,13 +55,17 @@ fun EditExercise(
     viewModel: ExerciseViewModel,
     navController: NavHostController,
 ) {
-    viewModel.exerciseState?.name?.let {
-        viewModel.nameExercise = it
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        viewModel.exerciseState?.name?.let {
+            viewModel.nameExercise = it
+        }
+        viewModel.exerciseState?.comment?.let {
+            viewModel.exerciseObservations = it
+        }
+        viewModel.selectedImageUri = viewModel.exerciseState?.image?.toUri()
     }
-    viewModel.exerciseState?.comment?.let {
-        viewModel.exerciseObservations = it
-    }
-    viewModel.selectedImageUri = viewModel.exerciseState?.image?.toUri()
 
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -69,98 +77,108 @@ fun EditExercise(
         }
     }
 
-    LaunchedEffect(Unit) {
+    if(viewModel.updated) {
         viewModel.updated = false
-    }
-
-    LaunchedEffect(viewModel.updated) {
-        if (viewModel.updated) {
-            viewModel.message = "Exercicio atualizado"
-        }
+        navController.popBackStack()
     }
 
     AppLayout(
-        title = "Editar ${viewModel.nameExercise}",
+        title = "Editar Exercício",
         selectedIcon = BottomBar.TRAINING.value,
-        navigateBack = {
-            navController.popBackStack()
-        },
-        navigateToHome = {
-            navController.navigate(Routes.HOME)
-        },
-        navigateToTraining = {
-            navController.navigate(Routes.TRAINING)
-        },
-        navigateToProfile = {
-            navController.navigate(Routes.PROFILE)
-        }
+        navigateBack = { navController.popBackStack() },
+        navigateToHome = { navController.navigate(Routes.HOME) },
+        navigateToTraining = { navController.navigate(Routes.TRAINING) },
+        navigateToProfile = { navController.navigate(Routes.PROFILE) }
     ) { modifier, showSnackBar ->
+
+        if(viewModel.message != null) {
+            showSnackBar(viewModel.message!!, null)
+        }
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xFF21252B).copy(alpha = 0.2f, red = 0.3f, blue = 0.4f))
+                .background(MaterialTheme.colorScheme.background)
                 .padding(top = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(viewModel.message != null) {
-                showSnackBar(viewModel.message ?: "", null)
-                viewModel.message = null
-            }
-
             if (viewModel.isLoading) {
                 Box(
-                    modifier = modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
-            } else
-
+            } else {
                 ElevatedCard(
-                    colors = CardDefaults.cardColors(Color(0xFF282C34)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
                     modifier = Modifier
                         .padding(10.dp)
                         .border(
-                            BorderStroke(1.dp, Color(0xFF606368)),
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                             shape = RoundedCornerShape(10.dp)
                         )
                 ) {
+                    // Header
                     Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(80.dp)
-                            .background(Color.Red)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Filled.SportsGymnastics,
                             contentDescription = "Insert Training",
                             modifier = Modifier.size(50.dp),
-                            tint = Color.Green
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
 
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Nome do exercício
                         OutlinedTextField(
-                            minLines = 1,
                             value = viewModel.nameExercise,
                             onValueChange = { viewModel.nameExercise = it },
-                            label = { Text(text = "Nome do exercício") },
+                            label = { Text("Nome do exercício") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                }
+                            )
                         )
 
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Observações
                         OutlinedTextField(
-                            minLines = 4,
                             value = viewModel.exerciseObservations,
                             onValueChange = { viewModel.exerciseObservations = it },
-                            label = { Text(text = "Observações") },
+                            label = { Text("Observações") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 4,
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = { keyboardController?.hide() }
+                            )
                         )
 
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        Spacer(modifier = Modifier.padding(bottom = 10.dp))
+                        // Imagem
                         if (viewModel.selectedImageUri.toString() == "null") {
                             Box(
                                 modifier = Modifier
@@ -174,25 +192,26 @@ fun EditExercise(
                                     .size(width = 280.dp, height = 150.dp)
                                     .border(
                                         width = 1.dp,
-                                        color = Color(0xFF70777C),
+                                        color = MaterialTheme.colorScheme.outline,
                                         shape = RoundedCornerShape(5.dp)
                                     ),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.AddAPhoto,
                                         contentDescription = "Selecionar Imagem",
-                                        modifier = Modifier.size(width = 50.dp, height = 50.dp)
+                                        modifier = Modifier.size(50.dp),
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
-                                    Text(text = "Selecionar Imagem")
+                                    Text(
+                                        text = "Selecionar Imagem",
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
-
                             }
                         } else {
                             AsyncImage(
@@ -202,7 +221,7 @@ fun EditExercise(
                                     .size(width = 280.dp, height = 150.dp)
                                     .border(
                                         width = 1.dp,
-                                        color = Color(0xFF70777C),
+                                        color = MaterialTheme.colorScheme.outline,
                                         shape = RoundedCornerShape(5.dp)
                                     )
                                     .clickable {
@@ -211,8 +230,7 @@ fun EditExercise(
                                                 ActivityResultContracts.PickVisualMedia.ImageOnly
                                             )
                                         )
-                                        Log.d("str", "${viewModel.exerciseState?.image}")
-                                    },
+                                    }
                             )
                         }
                     }
@@ -222,64 +240,57 @@ fun EditExercise(
                             .padding(top = 10.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .border(BorderStroke(1.dp, color = Color(0xFF54575C)))
+                            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline))
                     )
+
+                    // Action buttons
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         Button(
                             onClick = { navController.popBackStack() },
-                            colors = ButtonDefaults.buttonColors(Color.Transparent)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent
+                            )
                         ) {
                             Text(
                                 text = "CANCELAR",
-                                color = Color(0xFF5B90FE),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.SansSerif
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
                             )
                         }
 
                         if (
-                            (viewModel.nameExercise.isNotEmpty() && viewModel.exerciseObservations.isNotEmpty()) && !viewModel.selectedImageUri?.path.isNullOrEmpty()
+                            viewModel.nameExercise.isNotEmpty() &&
+                            viewModel.exerciseObservations.isNotEmpty() &&
+                            !viewModel.selectedImageUri?.path.isNullOrEmpty()
                         ) {
-                            Spacer(
-                                modifier = Modifier
-                                    .size(1.dp, 50.dp)
-                                    .border(
-                                        BorderStroke(
-                                            1.dp,
-                                            Color(0xFF54575C)
-                                        )
-                                    )
-                            )
-
                             Button(
                                 onClick = {
-                                    if (viewModel.selectedImageUri != null && viewModel.trainingState != null) {
-                                        viewModel.exerciseState?.id?.let {
-                                            viewModel.updateExercise(
-                                                exerciseId = it,
-                                                trainingId = viewModel.trainingState!!.id
-                                            )
-                                        }
+                                    viewModel.exerciseState?.id?.let {
+                                        viewModel.updateExercise(
+                                            exerciseId = it,
+                                            trainingId = viewModel.trainingState!!.id
+                                        )
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent
+                                )
                             ) {
                                 Text(
                                     text = "ATUALIZAR EXERCÍCIO",
-                                    color = Color(0xFF5B90FE),
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.SansSerif
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }
                     }
-
                 }
+            }
         }
     }
-
-
 }

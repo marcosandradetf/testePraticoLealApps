@@ -15,19 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsMma
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -46,133 +46,128 @@ fun UpdateTraining(
         it.id == viewModel.trainingId
     }
 
+    val colors = MaterialTheme.colorScheme
+    val spacing = 16.dp
 
     AppLayout(
         title = "Editar Treino",
         selectedIcon = BottomBar.TRAINING.value,
-        navigateToHome = {
-            navController.navigate(Routes.HOME)
-        },
-        navigateToProfile = {
-            navController.navigate(Routes.PROFILE)
-        }
-    ) { modifier, showSnackBar ->
-
+        navigateToHome = { navController.navigate(Routes.HOME) },
+        navigateToProfile = { navController.navigate(Routes.PROFILE) }
+    ) { _, _ ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 50.dp),
+                .background(colors.background)
+                .padding(horizontal = spacing, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             ElevatedCard(
-                onClick = { /*TODO*/ },
-                colors = CardDefaults.cardColors(Color(0xFF282C34)),
+                colors = CardDefaults.cardColors(containerColor = colors.surface),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
                 modifier = Modifier
-                    .padding(10.dp)
+                    .fillMaxWidth()
                     .border(
-                        BorderStroke(1.dp, Color(0xFF606368)),
-                        shape = RoundedCornerShape(10.dp)
-                    )
+                        BorderStroke(1.dp, colors.outline),
+                        shape = RoundedCornerShape(16.dp)
+                    ),
+                onClick = { /* opcional */ }
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(Color(0xFF5B90FE))
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.SportsMma,
-                        contentDescription = "Insert Training",
-                        modifier = Modifier.size(50.dp)
-                    )
-                }
-
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 20.dp),
+                    modifier = Modifier.padding(spacing),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.SportsMma,
+                        contentDescription = "Ícone de treino",
+                        tint = colors.primary,
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(bottom = spacing)
+                    )
+
                     OutlinedTextField(
-                        minLines = 1,
                         value = viewModel.nameTraining,
                         onValueChange = { viewModel.nameTraining = it },
-                        label = { Text(text = "Nome do treino") },
+                        label = { Text("Nome do treino") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            cursorColor = colors.primary,
+                            focusedLabelColor = colors.primary,
+                            unfocusedLabelColor = colors.onSurfaceVariant
+                        )
                     )
+
+                    Spacer(modifier = Modifier.height(spacing))
 
                     OutlinedTextField(
-                        minLines = 4,
                         value = viewModel.trainingObservations,
                         onValueChange = { viewModel.trainingObservations = it },
-                        label = { Text(text = "Descrição") },
+                        label = { Text("Descrição") },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            cursorColor = colors.primary,
+                            focusedLabelColor = colors.primary,
+                            unfocusedLabelColor = colors.onSurfaceVariant
+                        )
                     )
 
-                }
+                    Spacer(modifier = Modifier.height(spacing))
 
+                    Divider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = 1.dp,
+                        color = colors.outline
+                    )
 
-                Spacer(
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .border(BorderStroke(1.dp, color = Color(0xFF54575C)))
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Button(
-                        onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(Color.Transparent)
+                    Spacer(modifier = Modifier.height(spacing))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Text(
-                            text = "CANCELAR",
-                            color = Color(0xFF5B90FE),
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.SansSerif
-                        )
-                    }
-
-                    if ((viewModel.nameTraining.isNotEmpty() && viewModel.trainingObservations.isNotEmpty())
-                    ) {
-                        Spacer(
-                            modifier = Modifier
-                                .size(1.dp, 50.dp)
-                                .border(
-                                    BorderStroke(
-                                        1.dp,
-                                        Color(0xFF54575C)
-                                    )
-                                )
-                        )
-
-                        Button(
-                            onClick = {
-                                if (training != null) {
-                                    training.id?.let {
-                                        viewModel.updateTraining(
-                                            documentPath = it
-                                        )
-                                    }
-                                }
-                                navController.popBackStack()
-                            },
-                            colors = ButtonDefaults.buttonColors(Color.Transparent)
-                        ) {
+                        TextButton(onClick = { navController.popBackStack() }) {
                             Text(
-                                text = "EDITAR",
-                                color = Color(0xFF5B90FE),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.SansSerif
+                                text = "Cancelar",
+                                color = colors.primary,
+                                fontWeight = FontWeight.Bold
                             )
+                        }
+
+                        if (
+                            viewModel.nameTraining.isNotBlank() &&
+                            viewModel.trainingObservations.isNotBlank()
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    training?.id?.let {
+                                        viewModel.updateTraining(documentPath = it)
+                                    }
+                                    navController.popBackStack()
+                                }
+                            ) {
+                                Text(
+                                    text = "Editar",
+                                    color = colors.secondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
-
             }
         }
     }

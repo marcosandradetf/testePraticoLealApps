@@ -28,6 +28,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -63,7 +64,6 @@ fun HomeTraining(
     navHostController: NavHostController,
     viewModel: TrainingViewModel,
 ) {
-
     LaunchedEffect(Unit) {
         viewModel.getAll()
     }
@@ -71,14 +71,10 @@ fun HomeTraining(
     AppLayout(
         title = "Treinos",
         selectedIcon = BottomBar.TRAINING.value,
-        navigateToHome = {
-            navHostController.navigate(Routes.HOME)
-        },
-        navigateToProfile = {
-            navHostController.navigate(Routes.PROFILE)
-        }
+        navigateToHome = { navHostController.navigate(Routes.HOME) },
+        navigateToProfile = { navHostController.navigate(Routes.PROFILE) }
     ) { modifier, showSnackBar ->
-        if(viewModel.message != null) {
+        if (viewModel.message != null) {
             showSnackBar(viewModel.message ?: "", null)
             viewModel.message = null
         }
@@ -89,21 +85,20 @@ fun HomeTraining(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         } else {
             Column(
                 modifier = modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background),
-                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (viewModel.trainings.isNotEmpty()) {
                     LoadTraining(
                         workouts = viewModel.trainings,
                         navHostController = navHostController,
-                        viewModel = viewModel,
+                        viewModel = viewModel
                     )
 
                     TextButton(
@@ -116,9 +111,9 @@ fun HomeTraining(
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
-                } else if(viewModel.message != null) {
+                } else if (viewModel.message != null) {
                     Text(viewModel.message ?: "")
-                }else {
+                } else {
                     FirstCreate(
                         navController = navHostController,
                         route = "createTraining",
@@ -128,8 +123,6 @@ fun HomeTraining(
             }
         }
     }
-
-
 }
 
 @SuppressLint("SimpleDateFormat")
@@ -142,100 +135,88 @@ fun LoadTraining(
 ) {
     val openAlertDialog = remember { mutableStateOf(false) }
     val sdf = SimpleDateFormat("dd/MM/yyyy")
+    val colors = MaterialTheme.colorScheme
+
     LazyColumn {
         items(workouts) { training ->
             ElevatedCard(
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 6.dp
-                ), modifier = Modifier
-                    .width(width = 300.dp)
+                elevation = CardDefaults.cardElevation(6.dp),
+                modifier = Modifier
+                    .width(300.dp)
                     .padding(5.dp)
                     .border(
-                        BorderStroke(
-                            1.dp, Color(0xFF54575C)
-                        ), shape = RoundedCornerShape(10.dp)
-                    ), onClick = {
+                        BorderStroke(1.dp, colors.outline),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                onClick = {
                     navHostController.navigate("${Routes.HOME_EXERCISE}/${training.id}")
-                }, colors = CardDefaults.cardColors(Color(0xFF21252B))
+                },
+                colors = CardDefaults.cardColors(containerColor = colors.surface)
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Row {
-                        Text(text = training.name, color = Color(0xFFD8D8D8))
-                    }
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = training.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colors.onSurface
+                    )
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 10.dp)
+                        modifier = Modifier.padding(top = 4.dp, bottom = 10.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.AccessTime,
-                            contentDescription = "Date",
-                            tint = Color(0xFFD8D8D8),
+                            contentDescription = "Data",
+                            tint = colors.onSurfaceVariant,
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
                             text = " ${sdf.format(training.date)}",
-                            color = Color(0xFFD8D8D8),
+                            color = colors.onSurfaceVariant,
                             fontSize = 12.sp
                         )
                     }
-                    Spacer(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .fillParentMaxWidth()
-                            .border(
-                                border = BorderStroke(1.dp, Color(0xFF54575C)),
-                            )
+
+                    Divider(
+                        thickness = 1.dp,
+                        color = colors.outline
                     )
+
                     Row(
                         modifier = Modifier
-                            .width(300.dp)
-                            .padding(top = 20.dp, bottom = 10.dp),
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        training.comment?.let {
-                            Text(
-                                modifier = Modifier.width(220.dp),
-                                text = it,
-                                color = Color(0xFFD8D8D8)
-                            )
-                        }
-                        BadgedBox(
-                            badge = {
-                                Badge(
-                                    containerColor = Color.Green, contentColor = Color(0xFFD8D8D8)
-                                ) {
-                                    Text("TODO QTD", color = Color.Black)
-                                }
-                            }) {
-                            Icon(
-                                imageVector = Icons.Filled.SportsGymnastics,
-                                contentDescription = "Exercises",
-                                tint = Color(0xFFD8D8D8)
+                        Text(
+                            text = training.comment,
+                            color = colors.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.SportsGymnastics,
+                            contentDescription = "Exercícios",
+                            tint = colors.primary
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (openAlertDialog.value) {
+                            DeleteDialog(
+                                onDismissRequest = { openAlertDialog.value = false },
+                                onConfirmation = {
+                                    openAlertDialog.value = false
+                                    viewModel.deleteTraining()
+                                },
+                                dialogTitle = "Excluir treino",
+                                dialogText = "Ao confirmar o treino será excluído",
+                                icon = Icons.Filled.Info
                             )
                         }
 
-                    }
-                    Row(
-                        modifier = Modifier.width(300.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        when {
-                            // ...
-                            openAlertDialog.value -> {
-                                DeleteDialog(
-                                    onDismissRequest = { openAlertDialog.value = false },
-                                    onConfirmation = {
-                                        openAlertDialog.value = false
-                                        viewModel.deleteTraining()
-                                    },
-                                    dialogTitle = "Exluir treino",
-                                    dialogText = "Ao confirmar o treino será excluído",
-                                    icon = Icons.Filled.Info,
-                                )
-                            }
-                        }
                         SmallFloatingActionButton(
                             onClick = {
                                 viewModel.trainingId = training.id
@@ -243,22 +224,23 @@ fun LoadTraining(
                                 viewModel.trainingObservations = training.comment
                                 navHostController.navigate(Routes.EDIT_TRAINING)
                             },
-                            containerColor = Color(0xFF5B90FE),
-                            contentColor = Color.White,
+                            containerColor = colors.primary,
+                            contentColor = colors.onPrimary,
                             shape = CircleShape
                         ) {
-                            Icon(Icons.Filled.Edit, "Edit Training")
+                            Icon(Icons.Filled.Edit, contentDescription = "Editar")
                         }
+
                         SmallFloatingActionButton(
                             onClick = {
                                 viewModel.trainingId = training.id
                                 openAlertDialog.value = true
                             },
-                            containerColor = Color(0xFFF1526D),
-                            contentColor = Color.White,
+                            containerColor = colors.error,
+                            contentColor = colors.onError,
                             shape = CircleShape
                         ) {
-                            Icon(Icons.Filled.Delete, "Delete Training")
+                            Icon(Icons.Filled.Delete, contentDescription = "Excluir")
                         }
                     }
                 }
@@ -266,6 +248,7 @@ fun LoadTraining(
         }
     }
 }
+
 
 @Composable
 @Preview

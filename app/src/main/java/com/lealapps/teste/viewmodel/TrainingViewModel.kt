@@ -7,10 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.lealapps.teste.firebase.FirebaseService.translateFirebaseError
 import com.lealapps.teste.model.TrainingModel
 import com.lealapps.teste.repository.TrainingRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("MutableCollectionMutableState")
 class TrainingViewModel : ViewModel() {
@@ -29,39 +31,40 @@ class TrainingViewModel : ViewModel() {
     }
 
     fun getAll() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                trainings = repository.getAll()
-
+                trainings = withContext(Dispatchers.IO) {
+                    repository.getAll()
+                }
             } catch (e: FirebaseFirestoreException) {
-                // Lidar com erros de acesso ao Firestore
-                message = e.message ?: ""
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
             }
         }
     }
 
-    // Funcao para enviar dados para o Firestore
     fun uploadTraining() {
         val training = TrainingModel(
             name = nameTraining,
             comment = trainingObservations,
         )
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                repository.uploadTraining(training)
+                withContext(Dispatchers.IO) {
+                    repository.uploadTraining(training)
+                }
+                message = "Treino salvo com sucesso"
             } catch (e: Exception) {
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
             }
         }
     }
-
 
     fun updateTraining(documentPath: String) {
         val training = TrainingModel(
@@ -69,41 +72,44 @@ class TrainingViewModel : ViewModel() {
             comment = trainingObservations,
         )
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                repository.updateTraining(documentPath, training)
+                withContext(Dispatchers.IO) {
+                    repository.updateTraining(documentPath, training)
+                }
                 nameTraining = ""
                 trainingObservations = ""
                 trainingId = null
+                message = "Treino atualizado com sucesso"
             } catch (e: Exception) {
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
             }
         }
-
     }
 
     fun deleteTraining() {
-
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                repository.deleteTraining(trainingId)
+                withContext(Dispatchers.IO) {
+                    repository.deleteTraining(trainingId)
+                }
                 nameTraining = ""
                 trainingObservations = ""
-                trainingId = null
                 trainings = trainings.filterNot { it.id == trainingId }.toMutableList()
+                trainingId = null
+                message = "Treino excluído com sucesso"
             } catch (e: Exception) {
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
-                message = "Treino excluido com sucesso"
             }
         }
-
     }
+
 
 
 }

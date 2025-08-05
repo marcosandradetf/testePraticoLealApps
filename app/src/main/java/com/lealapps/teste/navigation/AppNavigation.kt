@@ -2,6 +2,7 @@ package com.lealapps.teste.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -13,6 +14,7 @@ import com.lealapps.teste.ui.exercise.EditExercise
 import com.lealapps.teste.ui.exercise.HomeExercises
 import com.lealapps.teste.ui.exercise.ViewExercise
 import com.lealapps.teste.ui.home.HomeScreen
+import com.lealapps.teste.ui.profile.ProfileScreen
 import com.lealapps.teste.ui.training.CreateTraining
 import com.lealapps.teste.ui.training.HomeTraining
 import com.lealapps.teste.ui.training.UpdateTraining
@@ -32,7 +34,7 @@ fun AppNavigation() {
         navController,
         startDestination = if (currentUser == null) Routes.LOGIN else Routes.HOME
     ) {
-        composable(Routes.LOGIN ) {
+        composable(Routes.LOGIN) {
             Login(
                 viewModel = userViewModel,
                 navController = navController
@@ -52,7 +54,7 @@ fun AppNavigation() {
                     navController = navController
                 )
             } else {
-                navController.navigate(Routes.LOGIN )
+                navController.navigate(Routes.LOGIN)
             }
 
         }
@@ -64,30 +66,30 @@ fun AppNavigation() {
                     trainingViewModel
                 )
             } else {
-                navController.navigate(Routes.LOGIN )
+                navController.navigate(Routes.LOGIN)
             }
 
         }
 
         composable(Routes.PROFILE) {
             if (currentUser != null) {
-                HomeTraining(
-                    navHostController = navController,
-                    trainingViewModel
+                ProfileScreen(
+                    navController,
+                    userViewModel
                 )
             } else {
-                navController.navigate(Routes.LOGIN )
+                navController.navigate(Routes.LOGIN)
             }
 
         }
 
-        composable(Routes.CREATE_TRAINING ) {
+        composable(Routes.CREATE_TRAINING) {
             if (currentUser != null) {
                 CreateTraining(
                     navController = navController,
                     viewModel = trainingViewModel
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
         }
         composable(Routes.EDIT_TRAINING) {
             if (currentUser != null) {
@@ -95,7 +97,7 @@ fun AppNavigation() {
                     viewModel = trainingViewModel,
                     navController = navController,
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
         }
 
         composable("${Routes.HOME_EXERCISE}/{documentPath}") { backStackEntry ->
@@ -107,7 +109,7 @@ fun AppNavigation() {
                     navController = navController,
                     viewModel = exerciseViewModel
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
 
         }
 
@@ -118,7 +120,7 @@ fun AppNavigation() {
                     viewModel = exerciseViewModel,
                     navController = navController,
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
         }
 
         composable(Routes.VIEW_EXERCISE) {
@@ -127,7 +129,7 @@ fun AppNavigation() {
                     viewModel = exerciseViewModel,
                     navController = navController
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
 
         }
 
@@ -137,7 +139,7 @@ fun AppNavigation() {
                     viewModel = exerciseViewModel,
                     navController = navController,
                 )
-            } else navController.navigate(Routes.LOGIN )
+            } else navController.navigate(Routes.LOGIN)
 
         }
 

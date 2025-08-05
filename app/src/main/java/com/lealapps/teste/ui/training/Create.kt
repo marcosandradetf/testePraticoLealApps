@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.SportsMma
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -55,143 +57,132 @@ fun CreateTraining(
     AppLayout(
         title = "Novo Treino",
         selectedIcon = BottomBar.TRAINING.value,
-        navigateBack = {
-            navController.popBackStack()
-        },
-        navigateToHome = {
-            navController.navigate(Routes.HOME)
-        },
-        navigateToTraining = {
-            navController.navigate(Routes.TRAINING)
-        },
-        navigateToProfile = {
-            navController.navigate(Routes.PROFILE)
-        }
-    ) {
-        modifier, showSnackBar ->
+        navigateBack = { navController.popBackStack() },
+        navigateToHome = { navController.navigate(Routes.HOME) },
+        navigateToTraining = { navController.navigate(Routes.TRAINING) },
+        navigateToProfile = { navController.navigate(Routes.PROFILE) }
+    ) { _, _ ->
+
+        val colors = MaterialTheme.colorScheme
+        val spacing = 16.dp
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 10.dp, vertical = 40.dp),
+                .background(colors.background)
+                .padding(horizontal = spacing, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            ElevatedCard(
+                colors = CardDefaults.cardColors(colors.surface),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = spacing)
+                    .border(
+                        BorderStroke(1.dp, colors.outline),
+                        shape = RoundedCornerShape(16.dp)
+                    ),
+                elevation = CardDefaults.cardElevation(8.dp),
+                onClick = { /* opcional */ }
+            ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .padding(spacing),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    ElevatedCard(
-                        onClick = { /*TODO*/ },
-                        colors = CardDefaults.cardColors(Color(0xFF282C34)),
+                    Icon(
+                        imageVector = Icons.Filled.SportsMma,
+                        contentDescription = "Ícone de Treino",
+                        tint = colors.primary,
                         modifier = Modifier
-                            .padding(10.dp)
-                            .border(
-                                BorderStroke(1.dp, Color(0xFF606368)),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(80.dp)
-                                .background(Color.Green)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.SportsMma,
-                                contentDescription = "Insert Training",
-                                modifier = Modifier.size(50.dp),
-                                tint = Color(0xFF21252B)
-                            )
-                        }
+                            .size(60.dp)
+                            .padding(bottom = spacing)
+                    )
 
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            OutlinedTextField(
-                                minLines = 1,
-                                value = viewModel.nameTraining,
-                                onValueChange = { viewModel.nameTraining = it },
-                                label = { Text(text = "Nome do treino") },
-                            )
-
-                            OutlinedTextField(
-                                minLines = 4,
-                                value = viewModel.trainingObservations,
-                                onValueChange = { viewModel.trainingObservations = it },
-                                label = { Text(text = "Descrição") },
-                            )
-
-
-                        }
-
-                        Spacer(
-                            modifier = Modifier
-                                .padding(top = 10.dp)
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .border(BorderStroke(1.dp, color = Color(0xFF54575C)))
+                    OutlinedTextField(
+                        value = viewModel.nameTraining,
+                        onValueChange = { viewModel.nameTraining = it },
+                        label = { Text("Nome do treino") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            cursorColor = colors.primary,
+                            focusedLabelColor = colors.primary,
+                            unfocusedLabelColor = colors.onSurfaceVariant
                         )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                    )
+
+                    Spacer(modifier = Modifier.height(spacing))
+
+                    OutlinedTextField(
+                        value = viewModel.trainingObservations,
+                        onValueChange = { viewModel.trainingObservations = it },
+                        label = { Text("Descrição") },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            cursorColor = colors.primary,
+                            focusedLabelColor = colors.primary,
+                            unfocusedLabelColor = colors.onSurfaceVariant
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(spacing))
+
+                    Divider(
+                        modifier = Modifier.fillMaxWidth(),
+                        thickness = 1.dp,
+                        color = colors.outline
+                    )
+
+                    Spacer(modifier = Modifier.height(spacing))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        TextButton(onClick = { navController.popBackStack() }) {
+                            Text(
+                                text = "Cancelar",
+                                color = colors.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        if (viewModel.nameTraining.isNotBlank() &&
+                            viewModel.trainingObservations.isNotBlank()
                         ) {
-                            Button(
-                                onClick = { navController.popBackStack() },
-                                colors = ButtonDefaults.buttonColors(Color.Transparent)
+                            TextButton(
+                                onClick = {
+                                    viewModel.uploadTraining()
+                                    navController.popBackStack()
+                                }
                             ) {
                                 Text(
-                                    text = "CANCELAR",
-                                    color = Color(0xFF5B90FE),
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = FontFamily.SansSerif
+                                    text = "Salvar",
+                                    color = colors.secondary,
+                                    fontWeight = FontWeight.Bold
                                 )
-                            }
-
-                            if ((viewModel.nameTraining.isNotEmpty() && viewModel.trainingObservations.isNotEmpty())
-                            ) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .size(1.dp, 50.dp)
-                                        .border(
-                                            BorderStroke(
-                                                1.dp,
-                                                Color(0xFF54575C)
-                                            )
-                                        )
-                                )
-
-                                Button(
-                                    onClick = {
-                                        viewModel.uploadTraining()
-                                        navController.popBackStack()
-                                    },
-                                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-                                ) {
-                                    Text(
-                                        text = "SALVAR",
-                                        color = Color(0xFF5B90FE),
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = FontFamily.SansSerif
-                                    )
-                                }
                             }
                         }
-
                     }
                 }
-
+            }
         }
     }
-
-
 }
+
+
 
 @Composable
 @Preview

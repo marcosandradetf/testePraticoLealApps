@@ -7,11 +7,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.lealapps.teste.firebase.FirebaseService.translateFirebaseError
 import com.lealapps.teste.model.ExerciseModel
 import com.lealapps.teste.model.TrainingModel
 import com.lealapps.teste.repository.ExerciseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class ExerciseViewModel : ViewModel() {
@@ -38,11 +40,10 @@ class ExerciseViewModel : ViewModel() {
     }
 
     fun uploadExercise(trainingId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             if (selectedImageUri != null) {
+                isLoading = true
                 try {
-                    isLoading = true
-
                     val exercise = ExerciseModel(
                         id = UUID.randomUUID().toString(),
                         name = nameExercise,
@@ -50,11 +51,16 @@ class ExerciseViewModel : ViewModel() {
                         image = "",
                         trainingId = trainingId
                     )
+                    val imageUri =
+                        withContext(Dispatchers.IO) {
+                            repository.uploadExercise(selectedImageUri!!, exercise)
+                        }
 
-                    repository.uploadExercise(selectedImageUri!!, exercise)
+                    exercises = exercises + exercise.copy(image = imageUri)
+                    message = "Exercício salvo com sucesso"
+                    updated = true
                 } catch (e: Exception) {
-                    Log.e("uploadExercise", "Erro ao fazer upload do exercício", e)
-                    message = e.message
+                    message = translateFirebaseError(e)
                 } finally {
                     isLoading = false
                 }
@@ -62,80 +68,93 @@ class ExerciseViewModel : ViewModel() {
         }
     }
 
-
     fun updateExercise(exerciseId: String, trainingId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-
                 val exercise = ExerciseModel(
-                    id = UUID.randomUUID().toString(),
+                    id = exerciseId,
                     name = nameExercise,
                     comment = exerciseObservations,
-                    image = "",
+                    image = exerciseState?.image ?: "", // imagem será atualizada
                     trainingId = trainingId
                 )
 
-                if (selectedImageUri != null) {
-                    val newUri = repository.updateExercise(exerciseId, exercise, selectedImageUri!!)
-                    exerciseState = exerciseState?.copy(
-                        name = nameExercise,
-                        comment = exerciseObservations,
-                        image = newUri
-                    )
+                val newImageUri = if (selectedImageUri != null) {
+                    withContext(Dispatchers.IO) {
+                        repository.updateExercise(exerciseId, exercise, selectedImageUri!!)
+                    }
+                } else {
+                    exercise.image // mantém a imagem antiga se não alterar
                 }
-            } catch (e: Exception) {
-                Log.e("uploadExercise", "Erro ao fazer upload do exercício", e)
-                message = e.message
-            } finally {
+
+                exerciseState = exerciseState?.copy(
+                    name = nameExercise,
+                    comment = exerciseObservations,
+                    image = newImageUri
+                )
                 updated = true
+                message = "Exercício atualizado com sucesso"
+
+            } catch (e: Exception) {
+                message = translateFirebaseError(e)
+            } finally {
                 isLoading = false
             }
         }
     }
+
 
     fun deleteExercise(exerciseId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                repository.deleteExercise(exerciseId)
+                withContext(Dispatchers.IO) {
+                    repository.deleteExercise(exerciseId)
+                }
+                updated = true
+                message = "Exercício excluído com sucesso"
             } catch (e: Exception) {
-                Log.e("uploadExercise", "Erro ao fazer upload do exercício", e)
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
-                updated = true
             }
         }
     }
+
 
     fun getTraining(trainingId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                trainingState = repository.getTraining(trainingId)
+                val training = withContext(Dispatchers.IO) {
+                    repository.getTraining(trainingId)
+                }
+                trainingState = training
             } catch (e: Exception) {
-                Log.e("uploadExercise", "Erro ao fazer upload do exercício", e)
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
             }
         }
     }
 
-    // Função para buscar todos os exercícios de um treino específico
+
     fun getExercisesByTrainingId(trainingId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
+            isLoading = true
             try {
-                isLoading = true
-                exercises = repository.getExercisesByTrainingId(trainingId)
+                val result = withContext(Dispatchers.IO) {
+                    repository.getExercisesByTrainingId(trainingId)
+                }
+                exercises = result
             } catch (e: Exception) {
-                message = e.message
+                message = translateFirebaseError(e)
             } finally {
                 isLoading = false
             }
         }
-
     }
+
 
 }

@@ -12,49 +12,43 @@ import kotlinx.coroutines.tasks.await
 
 class ExerciseRepository {
 
-    private val exerciseRef = if (auth.currentUser != null)
-        db.collection("users").document(auth.currentUser?.uid ?: "").collection("exercises")
-    else null
+    private fun getExerciseRef() = auth.currentUser?.let { user ->
+        db.collection("users").document(user.uid).collection("exercises")
+    }
 
-    private val trainingRef = if (auth.currentUser != null)
-        db.collection("users").document(auth.currentUser?.uid ?: "").collection("training")
-    else null
+    private fun getTrainingRef() = auth.currentUser?.let { user ->
+        db.collection("users").document(user.uid).collection("training")
+    }
 
     suspend fun getExercisesByTrainingId(trainingId: String): List<ExerciseModel> {
+        val exerciseRef = getExerciseRef() ?: throw IllegalStateException("Usuário não autenticado")
+
         return try {
             val result = exerciseRef
-                ?.whereEqualTo("trainingId", trainingId)  // Filtra os exercícios pelo trainingId
-                ?.get()
-                ?.await()
+                .whereEqualTo("trainingId", trainingId)
+                .get()
+                .await()
 
-            if (result?.isEmpty == true) {
-                emptyList()  // Retorna uma lista vazia se não encontrar exercícios
-            } else {
-                result?.documents?.mapNotNull { document ->
-                    document.toObject<ExerciseModel>()
-                } ?: emptyList()
-            }
+            if (result.isEmpty) emptyList()
+            else result.documents.mapNotNull { it.toObject<ExerciseModel>() }
         } catch (e: FirebaseFirestoreException) {
             throw e
         }
     }
 
-    suspend fun uploadExercise(selectedImageUri: Uri, exercise: ExerciseModel) {
+    suspend fun uploadExercise(selectedImageUri: Uri, exercise: ExerciseModel): String {
+        val exerciseRef = getExerciseRef() ?: throw IllegalStateException("Usuário não autenticado")
         val fileRef = storageRef.child("images/${selectedImageUri.lastPathSegment}")
 
         try {
-            // Envia o arquivo para o Firebase Storage
             fileRef.putFile(selectedImageUri).await()
-
-            // Obtém a URL de download após o upload ser concluído
             val downloadUri = fileRef.downloadUrl.await()
+            exerciseRef.document(exercise.id)
+                .set(exercise.copy(image = downloadUri.toString()))
+                .await()
 
-            exerciseRef?.document(
-                exercise.id
-            )?.set(exercise.copy(image = downloadUri.toString()))?.await()
-
+            return downloadUri.toString()
         } catch (e: Exception) {
-            // Tratar erros de upload
             throw e
         }
     }
@@ -64,52 +58,56 @@ class ExerciseRepository {
         exercise: ExerciseModel,
         selectedImageUri: Uri
     ): String {
+        val exerciseRef = getExerciseRef() ?: throw IllegalStateException("Usuário não autenticado")
+
+        // Verifica se o URI é diferente da imagem já salva
+        if (selectedImageUri.toString() == exercise.image) {
+            val updates = mapOf(
+                "name" to exercise.name,
+                "comment" to exercise.comment
+                // não atualiza a imagem
+            )
+            exerciseRef.document(exerciseId).update(updates).await()
+            return exercise.image // mantém a imagem atual
+        }
+
         val fileRef = storageRef.child("images/${selectedImageUri.lastPathSegment}")
-
         try {
-            // Envia o arquivo para o Firebase Storage
             fileRef.putFile(selectedImageUri).await()
-
-            // Obtém a URL de download após o upload ser concluído
             val downloadUri = fileRef.downloadUrl.await()
 
-            val updates = hashMapOf<String, Any>(
+            val updates = mapOf(
                 "name" to exercise.name,
                 "comment" to exercise.comment,
                 "image" to downloadUri.toString()
             )
 
-            exerciseRef?.document(exerciseId)?.update(
-                updates
-            )?.await()
-
+            exerciseRef.document(exerciseId).update(updates).await()
             return downloadUri.toString()
-
         } catch (e: Exception) {
             throw e
         }
-
     }
 
     suspend fun deleteExercise(exerciseId: String) {
+        val exerciseRef = getExerciseRef() ?: throw IllegalStateException("Usuário não autenticado")
+
         try {
-            exerciseRef?.document(exerciseId)?.delete()?.await()
+            exerciseRef.document(exerciseId).delete().await()
+
         } catch (e: Exception) {
             throw e
         }
     }
 
-    suspend fun getTraining(
-        documentPath: String
-    ): TrainingModel? {
-        return try {
-            val training = trainingRef?.document(documentPath)?.get()?.await()
-            training?.toObject<TrainingModel>()
+    suspend fun getTraining(documentPath: String): TrainingModel? {
+        val trainingRef = getTrainingRef() ?: throw IllegalStateException("Usuário não autenticado")
 
+        return try {
+            val training = trainingRef.document(documentPath).get().await()
+            training.toObject<TrainingModel>()
         } catch (e: FirebaseFirestoreException) {
             throw e
         }
     }
-
-
 }

@@ -12,12 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,67 +26,60 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.lealapps.teste.firebase.FirebaseService.auth
 import com.lealapps.teste.navigation.Routes
 import com.lealapps.teste.ui.components.AppLayout
 import com.lealapps.teste.ui.components.BottomBar
 
-
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
-    val paddingValues = PaddingValues(all = 16.dp)
-
-    // Cor de fundo para dar uma sensação de academia
-    val backgroundColor = Color(0xFF1E1E1E)
+    val paddingValues = PaddingValues(16.dp)
 
     AppLayout(
         title = "Início",
         selectedIcon = BottomBar.HOME.value,
-        navigateToTraining = {
-            navController.navigate(Routes.TRAINING)
-        },
-        navigateToProfile = {
-            navController.navigate(Routes.PROFILE)
-        }
+        navigateToTraining = { navController.navigate(Routes.TRAINING) },
+        navigateToProfile = { navController.navigate(Routes.PROFILE) }
     ) { modifier, showSnackBar ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .background(backgroundColor)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cabeçalho de boas-vindas
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Text(
+                text = "Olá, ${auth.currentUser?.displayName ?: "Usuário"}!",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            )
+
             Text(
                 text = "Bem-vindo ao GymHero",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = Color.White),
-                modifier = Modifier.padding(top = 40.dp)
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF80CBC4) // Cor teal suave para destaque
+                ),
+                modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Subtítulo de motivação
             Text(
                 text = "Seu parceiro de treino, sempre ao seu lado!",
-                style = MaterialTheme.typography.bodyMedium.copy(color = Color.Gray),
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(0.8f)
             )
 
-            // Imagem motivacional (pode ser uma imagem de academia ou algo inspirador)
-//            Image(
-//                painter = painterResource(id = R.drawable.), // Coloque sua imagem motivacional aqui
-//                contentDescription = "Imagem de treino",
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(250.dp)
-//                    .padding(top = 20.dp),
-//                contentScale = ContentScale.Crop
-//            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // Seções rápidas de navegação
-            Spacer(modifier = Modifier.height(40.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -103,30 +97,40 @@ fun HomeScreen(navController: NavHostController) {
                     onClick = { navController.navigate(Routes.PROFILE) }
                 )
             }
-
-
         }
     }
-
 }
 
 @Composable
 fun HomeButton(icon: ImageVector, text: String, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFF2E2E2E),
+        tonalElevation = 6.dp,
         modifier = Modifier
+            .size(120.dp)
             .clickable { onClick() }
-            .padding(8.dp)
-            .background(Color(0xFF3A3A3A), shape = CircleShape)
-            .padding(16.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = text,
-            tint = Color.White,
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = text, color = Color.White)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = text,
+                tint = Color(0xFF80CBC4),
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = text,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }

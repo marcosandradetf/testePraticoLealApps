@@ -1,5 +1,6 @@
 package com.lealapps.teste.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -12,8 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,12 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,11 +59,18 @@ fun SignUp(
     userViewModel: UserViewModel
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(userViewModel.isAuthenticated) {
-        if(userViewModel.isAuthenticated) {
+        if (userViewModel.isAuthenticated) {
             navController.navigate(Routes.HOME)
         }
+    }
+
+    if (userViewModel.message.isNotBlank()) {
+        Toast.makeText(context, userViewModel.message, Toast.LENGTH_LONG).show()
+        userViewModel.message = ""
     }
 
     Column(
@@ -70,10 +85,10 @@ fun SignUp(
             .background(color = MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-    )  {
+    ) {
         Column(
             modifier = Modifier
-                .padding(top=50.dp)
+                .padding(top = 50.dp)
                 .fillMaxWidth()
         ) {
 
@@ -105,6 +120,27 @@ fun SignUp(
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
+                OutlinedTextField(
+                    value = userViewModel.name,
+                    onValueChange = { userViewModel.name = it },
+                    label = {
+                        Text(
+                            text = "Seu Nome",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    )
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
                 // Campo de Email
                 OutlinedTextField(
                     value = userViewModel.email,
@@ -127,11 +163,24 @@ fun SignUp(
                     value = userViewModel.password,
                     onValueChange = { userViewModel.password = it },
                     label = { Text(text = "Senha", color = MaterialTheme.colorScheme.onSurface) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = if (passwordVisible) "Ocultar senha" else "Mostrar senha"
+                            )
+                        }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
@@ -140,15 +189,36 @@ fun SignUp(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
+                var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+                // Campo de Confirmação de Senha
                 OutlinedTextField(
                     value = userViewModel.confirmPassword,
                     onValueChange = { userViewModel.confirmPassword = it },
-                    label = { Text(text = "Confirmação de senha", color = MaterialTheme.colorScheme.onSurface) },
-                    visualTransformation = PasswordVisualTransformation(),
+                    label = {
+                        Text(
+                            text = "Confirmação de senha",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     maxLines = 1,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        val image = if (confirmPasswordVisible)
+                            Icons.Default.Visibility
+                        else
+                            Icons.Default.VisibilityOff
+
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(
+                                imageVector = image,
+                                contentDescription = if (confirmPasswordVisible) "Ocultar senha" else "Mostrar senha"
+                            )
+                        }
+                    },
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
